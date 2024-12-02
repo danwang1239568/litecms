@@ -3,7 +3,7 @@ import { useUserStore } from '@/stores'
 import { ElMessage } from "element-plus";
 import router from '@/router'
 
-const baseURL = 'http://big-event-vue-api-t.itheima.net'
+const baseURL = 'https://big-event-vue-api-t.itheima.net'
 
 // 初始化
 const instance = axios.create({
@@ -14,7 +14,7 @@ const instance = axios.create({
 // 请求拦截
 instance.interceptors.request.use(config => {
   const userStore = useUserStore()
-  if(userStore.token){
+  if (userStore.token) {
     config.headers.Authorization = userStore.token
   }
   return config
@@ -24,13 +24,13 @@ instance.interceptors.request.use(config => {
 
 // 响应拦截
 instance.interceptors.response.use(res => {
-  if(res.data.code === 0){
+  if (res.data.code === 0) {
     return res
   }
   ElMessage.error(res?.data?.message || '服务器繁忙')
   return Promise.reject(res.data)
 }, err => {
-  if(err.response?.status === 401){
+  if (err.response?.status === 401) {
     router.push('/login')
   }
 
