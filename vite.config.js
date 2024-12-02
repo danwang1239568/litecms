@@ -9,6 +9,17 @@ import { ElementPlusResolver } from 'unplugin-vue-components/resolvers'
 
 // https://vite.dev/config/
 export default defineConfig({
+  // 尝试vite代理解决跨域问题
+  server: {
+    proxy: {
+      '/api': {
+        target: 'http://big-event-vue-api-t.itheima.net/api',
+        changeOrigin: true,
+        rewrite: (path) => path.replace(/^\/api/, '')
+      }
+    }
+  },
+  //
   base: '/',
   plugins: [
     vue(),

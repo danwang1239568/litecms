@@ -1,40 +1,22 @@
 <script setup>
   import {
-    onMounted
-  } from 'vue';
-  import {
     RouterLink,
     RouterView,
     useRoute,
     useRouter
   } from 'vue-router';
-  import {
-    useUserStore
-  } from '@/stores'
-
-  onMounted(() => {
-    console.log(import.meta.env.DEV);
-  })
+  import zhCn from 'element-plus/dist/locale/zh-cn.mjs';
 
   const route = useRoute()
   const router = useRouter()
 
-  const userStore = useUserStore()
 </script>
 
 <template>
   <div class="box">
-    <router-view></router-view>
-
-
-
-    <br /><br><br><br><br><br><br><br><br><br>
-
-    <el-button @click="$router.push('/login')">跳首页</el-button>
-
-    <p>token: {{ userStore.token }}</p>
-    <el-button @click="userStore.setToken('fseeioufgerghi')">登录</el-button>
-    <el-button @click="userStore.removeToken()">退出</el-button>
+    <el-config-provider :locale="zhCn">
+      <router-view></router-view>
+    </el-config-provider>
 
   </div>
 </template>

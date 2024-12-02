@@ -22,21 +22,19 @@ instance.interceptors.request.use(config => {
   return Promise.reject(err)
 })
 
-// 相应拦截
-instance.interceptors.request.use(res => {
+// 响应拦截
+instance.interceptors.response.use(res => {
   if(res.data.code === 0){
     return res
   }
-  ElMessage.error(res.data.message || '服务器繁忙')
-  return Promise.reject(res.data){
-    router.push()
-  }
+  ElMessage.error(res?.data?.message || '服务器繁忙')
+  return Promise.reject(res.data)
 }, err => {
   if(err.response?.status === 401){
     router.push('/login')
   }
 
-  ElMessage.error(err.response.data.message || '服务器繁忙')
+  ElMessage.error(err?.response?.message || '服务器繁忙')
   return Promise.reject(err)
 })
 
