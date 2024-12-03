@@ -84,11 +84,22 @@ const registe = async () => {
 // 登录
 const login = async () => {
   await formRef.value.validate()
-  const res = await userLogin(form)
-  userStore.setToken(res.data.token)
+  // const res = await userLogin(form) // 接口不支持HTTPS
+  // userStore.setToken(res.data.token)
+  userStore.setToken('tempToken')
+  userStore.setUser({
+    username: 'danwang',
+    id: 1,
+    nickname: 'admin',
+    email: 'admin@123.com',
+    user_pic: ''
+  })
   ElMessage.success('登录成功')
-  router.push('/article/channel')
-  userStore.getUser()
+  setTimeout(() => {
+    router.replace('/article/channel')
+  }, 1000);
+
+  // userStore.getUser()
 }
 
 // 测试用

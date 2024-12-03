@@ -13,7 +13,7 @@ const handleAvatarChange = (file) => {
   imgUrl.value = URL.createObjectURL(file.raw);
 }
 const onUpdateAvatar = async () => {
-  await userUpdateAvatar(imgUrl.value);
+  // await userUpdateAvatar(imgUrl.value);
   await userStore.getUser()
   ElMessage.success('头像更新成功');
 }

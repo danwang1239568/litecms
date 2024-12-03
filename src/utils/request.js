@@ -23,6 +23,7 @@ instance.interceptors.request.use(config => {
 })
 
 // 响应拦截
+/*
 instance.interceptors.response.use(res => {
   if (res.data.code === 0) {
     return res
@@ -37,6 +38,6 @@ instance.interceptors.response.use(res => {
   ElMessage.error(err?.response?.message || '服务器繁忙')
   return Promise.reject(err)
 })
-
+*/
 export default instance
 export { baseURL }

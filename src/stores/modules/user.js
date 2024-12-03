@@ -12,11 +12,22 @@ export const useUserStore = defineStore('user', () => {
   }
   const user = ref({})
   const getUser = async () => {
-    const res = await userGetInfo()
-    user.value = res.data.data
+    // const res = await userGetInfo()
+    // user.value = res.data.data
+    user.value = {
+      username: 'danwang',
+      id: 1,
+      nickname: 'admin',
+      email: 'admin@123.com'
+    }
   }
-  const setUser = obj => {
-    user.value = obj
+  const setUser = () => {
+    user.value = {
+      username: 'danwang',
+      id: 1,
+      nickname: 'admin',
+      email: 'admin@123.com'
+    }
   }
 
   return {
