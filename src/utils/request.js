@@ -6,12 +6,13 @@ import router from '@/router'
 const baseURL = '//big-event-vue-api-t.itheima.net'
 
 // 初始化
+
 const instance = axios.create({
-  baseURL,
   timeout: 10000
 })
 
 // 请求拦截
+/*
 instance.interceptors.request.use(config => {
   const userStore = useUserStore()
   if (userStore.token) {
@@ -23,7 +24,7 @@ instance.interceptors.request.use(config => {
 })
 
 // 响应拦截
-/*
+
 instance.interceptors.response.use(res => {
   if (res.data.code === 0) {
     return res
