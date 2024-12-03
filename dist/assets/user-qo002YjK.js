@@ -1,1 +1,0 @@
-import{ba as o,r as s}from"./index-BQXtW-cs.js";const u=o("user",()=>{const e=s(""),a=t=>{e.value=t},r=()=>{e.value=""},n=s({});return{token:e,setToken:a,removeToken:r,user:n,getUser:async()=>{n.value={username:"danwang",id:1,nickname:"admin",email:"admin@123.com"}},setUser:()=>{n.value={username:"danwang",id:1,nickname:"admin",email:"admin@123.com"}}}},{persist:!0});export{u};
