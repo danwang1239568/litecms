@@ -96,6 +96,9 @@ const login = async () => {
   })
   ElMessage.success('登录成功')
   setTimeout(() => {
+    setTimeout(() => {
+      router.replace('/article/channel')
+    }, 1000);
     router.replace('/article/channel')
   }, 1000);
 

@@ -1,0 +1,1 @@
+import{b0 as t}from"./index-BQXtW-cs.js";const p=s=>t.post("api/reg",s),r=s=>t.put("my/userinfo",s),n=({old_pwd:s,new_pwd:a,re_pwd:e})=>t.patch("/my/updatepwd",{old_pwd:s,new_pwd:a,re_pwd:e});export{r as a,n as b,p as u};
