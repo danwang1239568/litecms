@@ -2,7 +2,8 @@
 import pagecontainer from '@/components/pageContainer.vue'
 import { useUserStore } from '@/stores'
 import { ref } from 'vue'
-import { userUpdateInfo } from '@/api/user';
+import { userUpdateInfoApi } from '@/api/user';
+import { ElMessage } from 'element-plus';
 
 const userStore = useUserStore()
 
@@ -21,10 +22,6 @@ getUser()
 const formRef = ref(null)
 
 const rules = {
-  username: [
-    { required: true, message: '请输入登录名称', trigger: 'blur' },
-    { min: 3, max: 20, message: '长度在 3 到 20 个字符', trigger: 'blur' }
-  ],
   nickname: [
     { required: true, message: '请输入用户昵称', trigger: 'blur' },
     { min: 2, max: 20, message: '长度在 2 到 20 个字符', trigger: 'blur' }
@@ -36,26 +33,48 @@ const rules = {
 }
 const onSubmit = async () => {
   await formRef.value.validate()
-  await userUpdateInfo(formData.value)
-  userStore.getUser()
+  await userUpdateInfoApi(formData.value)
+  await userStore.getUser()
+  ElMessage.success('成功更新用户信息')
 }
 
 </script>
 
 <template>
   <pagecontainer title="基本资料">
-    <el-form :model="formData" :rules="rules" ref="formRef" label-width="100px" style="width: 600px;">
-      <el-form-item label="登录名称" prop="username">
-        <el-input v-model="formData.username"></el-input>
+    <el-form
+      :model="formData"
+      :rules="rules"
+      ref="formRef"
+      label-width="100px"
+      style="width: 600px;"
+    >
+      <el-form-item
+        label="登录名称"
+        prop="username"
+      >
+        <el-input
+          disabled
+          v-model="formData.username"
+        ></el-input>
       </el-form-item>
-      <el-form-item label="用户昵称" prop="nickname">
+      <el-form-item
+        label="用户昵称"
+        prop="nickname"
+      >
         <el-input v-model="formData.nickname"></el-input>
       </el-form-item>
-      <el-form-item label="用户邮箱" prop="email">
+      <el-form-item
+        label="用户邮箱"
+        prop="email"
+      >
         <el-input v-model="formData.email"></el-input>
       </el-form-item>
       <el-form-item>
-        <el-button type="primary" @click="onSubmit">提交修改</el-button>
+        <el-button
+          type="primary"
+          @click="onSubmit"
+        >提交修改</el-button>
       </el-form-item>
     </el-form>
   </pagecontainer>

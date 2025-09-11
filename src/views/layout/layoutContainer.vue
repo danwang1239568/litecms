@@ -1,58 +1,67 @@
 <script setup>
-  import {
-    Memo,
-    Promotion,
-    UserFilled,
-    User,
-    Crop,
-    EditPen,
-    CaretBottom,
-    SwitchButton
-  } from '@element-plus/icons-vue'
-  import {
-    useUserStore
-  } from '@/stores';
-  import {
-    ref
-  } from 'vue';
-  import {
-    onMounted
-  } from 'vue';
-  import {
-    reactive
-  } from 'vue';
-  import defaultAvatar from '@/assets/default.png'
-  import router from '@/router';
-  import {
-    ElMessage
-  } from 'element-plus';
+import {
+  Memo,
+  Promotion,
+  UserFilled,
+  User,
+  Crop,
+  EditPen,
+  CaretBottom,
+  SwitchButton
+} from '@element-plus/icons-vue'
+import {
+  useUserStore
+} from '@/stores';
+import {
+  ref
+} from 'vue';
+import {
+  onMounted, reactive
+} from 'vue';
+import defaultAvatar from '@/assets/default.png'
+import router from '@/router';
+import {
+  ElMessage
+} from 'element-plus';
 
-  const userStore = useUserStore()
-  const avatarSrc = ref(userStore.user.user_pic || defaultAvatar)
+const userStore = useUserStore()
+const avatarSrc = ref(userStore.user.user_pic || defaultAvatar)
 
-  const visible = ref(false)
-  // 弹出框命令
-  const handleCommand = path => {
-    if (path) router.push('/user/' + path)
-    else ElMessageBox({
-      message: '确定要退出登录吗?',
-      showCancelButton: true,
-      confirmButtonText: '确定',
-      cancelButtonText: '取消',
-    }).then(() => {
-      userStore.removeToken()
-      userStore.setUser({})
-      router.push('/login')
-    })
-  }
+const visible = ref(false)
+// 弹出框命令
+const handleCommand = path => {
+  if (path) router.push('/user/' + path)
+  else ElMessageBox({
+    message: '确定要退出登录吗?',
+    showCancelButton: true,
+    confirmButtonText: '确定',
+    cancelButtonText: '取消',
+  }).then(() => {
+    userStore.logout()
+    router.push('/login')
+  })
+}
+
+onMounted(() => {
+  userStore.getUser()
+})
+
 </script>
 
 <template>
   <el-row>
     <el-col :span="4">
       <div class="menu">
-        <el-menu background-color="#222" text-color="#eee" default-active="/article/channel" router>
-          <img class="logo" src="@/assets/logo.png" />
+        <el-menu
+          background-color="#222"
+          text-color="#eee"
+          default-active="/article/channel"
+          router
+        >
+          <img
+            class="logo"
+            src="@/assets/logo.png"
+          />
           <el-menu-item index="/article/channel">
             <el-icon>
               <Memo />
@@ -96,11 +105,20 @@
     </el-col>
     <el-col :span="20">
       <div class="header">
-        <span>{{ userStore.user.nickname || '程序员' }}: </span><span class="myname">{{ userStore.user.username }}</span>
-        <div class="avatar" @mouseover="visible=true">
+        <span>{{ userStore.user.username || '用户名称错误' }}</span><span
+          v-if="userStore.user.nickname"
+          class="myname"
+        >: {{ userStore.user.nickname }}</span>
+        <div
+          class="avatar"
+          @mouseover="visible=true"
+        >
           <el-dropdown @command="handleCommand">
             <div class="avatar">
-              <el-avatar :size="40" :src="avatarSrc" />
+              <el-avatar
+                :size="40"
+                :src="userStore.user.avatar || avatarSrc"
+              />
               <el-icon size="20">
                 <CaretBottom />
               </el-icon>
@@ -119,7 +137,8 @@
                   </el-icon>
                   <span>更换头像</span>
                 </el-dropdown-item>
-                <el-dropdown-item command="password"><el-icon>
+                <el-dropdown-item command="password">
+                  <el-icon>
                     <EditPen />
                   </el-icon>
                   <span>重置密码</span>
@@ -150,6 +169,7 @@
 
     .logo {
       margin: 20px 0;
+      width: 100%;
     }
   }
 

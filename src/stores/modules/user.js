@@ -1,10 +1,11 @@
 import { defineStore } from "pinia";
 import { ref } from "vue";
-import { userGetInfo } from "@/api/user";
+import { userGetInfoApi } from "@/api/user";
 
 export const useUserStore = defineStore('user', () => {
   const token = ref('')
   const setToken = newToken => {
+    console.log(newToken)
     token.value = newToken
   }
   const removeToken = () => {
@@ -12,22 +13,12 @@ export const useUserStore = defineStore('user', () => {
   }
   const user = ref({})
   const getUser = async () => {
-    // const res = await userGetInfo()
-    // user.value = res.data.data
-    user.value = {
-      username: 'danwang',
-      id: 1,
-      nickname: 'admin',
-      email: 'admin@123.com'
-    }
+    const res = await userGetInfoApi()
+    user.value = res.data.data
   }
-  const setUser = () => {
-    user.value = {
-      username: 'danwang',
-      id: 1,
-      nickname: 'admin',
-      email: 'admin@123.com'
-    }
+  const logout = () => {
+    user.value = {}
+    token.value = ''
   }
 
   return {
@@ -36,7 +27,7 @@ export const useUserStore = defineStore('user', () => {
     removeToken,
     user,
     getUser,
-    setUser
+    logout
   }
 }, {
   persist: true

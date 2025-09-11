@@ -3,17 +3,21 @@ import pageContainer from '@/components/pageContainer.vue';
 import { Plus, Upload } from '@element-plus/icons-vue';
 import { ref } from 'vue';
 import { useUserStore } from '@/stores';
-import { userUpdateAvatar } from '@/api/user';
+import { userUpdateAvatarApi } from '@/api/user';
 
 const userStore = useUserStore();
 
-const imgUrl = ref(userStore.user.user_pic);
-const uploadRef = ref();
-const handleAvatarChange = (file) => {
-  imgUrl.value = URL.createObjectURL(file.raw);
+const imgUrl = ref(userStore.user.avatar);
+const uploadRef = ref(null);
+let uploadRaw = null
+const handleAvatarChange = (uploadFile) => {
+  uploadRaw = uploadFile.raw
+  imgUrl.value = URL.createObjectURL(uploadFile.raw);
 }
 const onUpdateAvatar = async () => {
-  // await userUpdateAvatar(imgUrl.value);
+  const fd = new FormData()
+  fd.append('avatar', uploadRaw)
+  await userUpdateAvatarApi(fd);
   await userStore.getUser()
   ElMessage.success('头像更新成功');
 }
@@ -22,17 +26,38 @@ const onUpdateAvatar = async () => {
 
 <template>
   <pageContainer title="更换头像">
-    <el-upload class="avatar-uploader" ref="uploadRef" :auto-upload="false" :show-file-list="false"
-      :on-change="handleAvatarChange">
-      <img v-if="imgUrl" :src="imgUrl" class="avatar" />
-      <el-icon v-else class="avatar-uploader-icon">
+    <el-upload
+      class="avatar-uploader"
+      ref="uploadRef"
+      :auto-upload="false"
+      :show-file-list="false"
+      :on-change="handleAvatarChange"
+    >
+      <img
+        v-if="imgUrl"
+        :src="imgUrl"
+        class="avatar"
+      />
+      <el-icon
+        v-else
+        class="avatar-uploader-icon"
+      >
         <Plus />
       </el-icon>
     </el-upload>
 
-    <el-button @click="uploadRef.$el.querySelector('input').click()" :icon="Plus" type="primary"
-      size="large">选择图片</el-button>
-    <el-button @click="onUpdateAvatar" :icon="Upload" type="success" size="large">上传图片</el-button>
+    <el-button
+      @click="uploadRef.$el.querySelector('input').click()"
+      :icon="Plus"
+      type="primary"
+      size="large"
+    >选择图片</el-button>
+    <el-button
+      @click="onUpdateAvatar"
+      :icon="Upload"
+      type="success"
+      size="large"
+    >上传图片</el-button>
   </pageContainer>
 </template>
 
