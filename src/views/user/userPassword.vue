@@ -1,22 +1,22 @@
 <script setup>
-import pageContainer from '@/components/pageContainer.vue';
-import { ref } from 'vue';
-import { userUpdatePasswordApi } from '@/api/user';
-import { ElMessage } from 'element-plus';
-import { useUserStore } from '@/stores';
-import { useRouter } from 'vue-router';
+import pageContainer from '@/components/pageContainer.vue'
+import { ref } from 'vue'
+import { userUpdatePasswordApi } from '@/api/user'
+import { ElMessage } from 'element-plus'
+import { useUserStore } from '@/stores'
+import { useRouter } from 'vue-router'
 
-const router = useRouter();
-const userStore = useUserStore();
+const router = useRouter()
+const userStore = useUserStore()
 const formData = ref({
   oldPwd: '',
   newPwd: '',
-  rePwd: '',
+  rePwd: ''
 })
 const rules = {
   oldPwd: [
     { required: true, message: '请输入旧密码', trigger: 'blur' },
-    { min: 6, max: 20, message: '密码长度在 6 到 20 个字符', trigger: 'blur' },
+    { min: 6, max: 20, message: '密码长度在 6 到 20 个字符', trigger: 'blur' }
   ],
   newPwd: [
     { required: true, message: '请输入新密码', trigger: 'blur' },
@@ -25,9 +25,9 @@ const rules = {
     {
       validator(rule, value, callback) {
         if (value === formData.value.oldPwd) {
-          callback(new Error('新密码不能与旧密码相同'));
+          callback(new Error('新密码不能与旧密码相同'))
         } else {
-          callback();
+          callback()
         }
       }
     }
@@ -39,15 +39,15 @@ const rules = {
     {
       validator(rule, value, callback) {
         if (value !== formData.value.newPwd) {
-          callback(new Error('两次输入的密码不一致!'));
+          callback(new Error('两次输入的密码不一致!'))
         } else {
-          callback();
+          callback()
         }
       }
     }
   ]
 }
-const formRef = ref();
+const formRef = ref()
 
 const handleSubmit = async () => {
   await formRef.value.validate()
@@ -59,9 +59,8 @@ const handleSubmit = async () => {
 }
 
 const handleReset = async () => {
-  formRef.value.resetFields();
+  formRef.value.resetFields()
 }
-
 </script>
 
 <template>
@@ -71,46 +70,21 @@ const handleReset = async () => {
       :rules="rules"
       label-width="100px"
       ref="formRef"
-      @submit.native.prevent
-      style="width: 50%;"
+      @submit.stop.prevent
+      style="width: 100%; max-width: 400px"
     >
-      <el-form-item
-        prop="oldPwd"
-        label="旧密码"
-      >
-        <el-input
-          v-model="formData.oldPwd"
-          type="password"
-        ></el-input>
+      <el-form-item prop="oldPwd" label="旧密码">
+        <el-input v-model="formData.oldPwd" type="password"></el-input>
       </el-form-item>
-      <el-form-item
-        prop="newPwd"
-        label="新密码"
-      >
-        <el-input
-          v-model="formData.newPwd"
-          type="password"
-        ></el-input>
+      <el-form-item prop="newPwd" label="新密码">
+        <el-input v-model="formData.newPwd" type="password"></el-input>
       </el-form-item>
-      <el-form-item
-        prop="rePwd"
-        label="确认新密码"
-      >
-        <el-input
-          v-model="formData.rePwd"
-          type="password"
-        ></el-input>
+      <el-form-item prop="rePwd" label="确认新密码">
+        <el-input v-model="formData.rePwd" type="password"></el-input>
       </el-form-item>
       <el-form-item>
-        <el-button
-          type="primary"
-          @click="handleSubmit"
-        >提交</el-button>
-        <el-button
-          type="default"
-          @click="handleReset"
-        >重置</el-button>
-
+        <el-button type="primary" @click="handleSubmit">提交</el-button>
+        <el-button type="default" @click="handleReset">重置</el-button>
       </el-form-item>
     </el-form>
   </pageContainer>

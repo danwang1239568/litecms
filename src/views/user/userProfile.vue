@@ -2,8 +2,8 @@
 import pagecontainer from '@/components/pageContainer.vue'
 import { useUserStore } from '@/stores'
 import { ref } from 'vue'
-import { userUpdateInfoApi } from '@/api/user';
-import { ElMessage } from 'element-plus';
+import { userUpdateInfoApi } from '@/api/user'
+import { ElMessage } from 'element-plus'
 
 const userStore = useUserStore()
 
@@ -37,7 +37,6 @@ const onSubmit = async () => {
   await userStore.getUser()
   ElMessage.success('成功更新用户信息')
 }
-
 </script>
 
 <template>
@@ -47,38 +46,22 @@ const onSubmit = async () => {
       :rules="rules"
       ref="formRef"
       label-width="100px"
-      style="width: 600px;"
+      style="width: 100%; max-width: 400px"
     >
-      <el-form-item
-        label="登录名称"
-        prop="username"
-      >
-        <el-input
-          disabled
-          v-model="formData.username"
-        ></el-input>
+      <el-form-item label="登录名称" prop="username">
+        <el-input disabled v-model="formData.username"></el-input>
       </el-form-item>
-      <el-form-item
-        label="用户昵称"
-        prop="nickname"
-      >
+      <el-form-item label="用户昵称" prop="nickname">
         <el-input v-model="formData.nickname"></el-input>
       </el-form-item>
-      <el-form-item
-        label="用户邮箱"
-        prop="email"
-      >
+      <el-form-item label="用户邮箱" prop="email">
         <el-input v-model="formData.email"></el-input>
       </el-form-item>
-      <el-form-item>
-        <el-button
-          type="primary"
-          @click="onSubmit"
-        >提交修改</el-button>
+      <el-form-item label="">
+        <el-button type="primary" @click="onSubmit">提交修改</el-button>
       </el-form-item>
     </el-form>
   </pagecontainer>
-
 </template>
 
 <style></style>

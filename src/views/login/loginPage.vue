@@ -1,97 +1,100 @@
 <script setup>
-import {
-  reactive,
-  ref
-} from 'vue';
-import {
-  User,
-  Lock
-} from '@element-plus/icons-vue'
-import {
-  ElMessage, ElMessageBox
-} from 'element-plus'
-import {
-  userRegisteApi,
-  userLoginApi
-} from '@/api/user'
-import {
-  useUserStore
-} from '@/stores';
-import router from '@/router';
-import { userResetPasswordApi } from '@/api/user';
+import { reactive, ref, nextTick } from 'vue'
+import { useRoute } from 'vue-router'
+import router from '@/router'
+import { useUserStore } from '@/stores'
+import { ElMessage, ElMessageBox } from 'element-plus'
+import { userRegisteApi, userLoginApi } from '@/api/user'
+import { userResetPasswordApi } from '@/api/user'
 
 const userStore = useUserStore()
+const route = useRoute()
 
-const mode = ref('login') //0显示登录，1显示注册
-const rules = reactive({
-  username: [{
-    required: true,
-    message: '请输入用户名',
-    trigger: 'change'
-  }, {
-    min: 6,
-    max: 10,
-    message: '必须为6-10位数字或字母',
-    trigger: 'blur'
-  }, {
-    pattern: /^[a-zA-Z0-9]*$/,
-    message: '必须为6-10位数字或字母',
-    trigger: ['blur', 'change']
-  }],
-  password: [{
-    required: true,
-    message: '请输入密码',
-    trigger: 'change'
-  }, {
-    min: 6,
-    max: 10,
-    message: '6-10位',
-    trigger: 'blur'
-  }],
-  repassword: [{
-    validator: (rule, value, callback) => {
-      if (value !== form.password) {
-        callback(new Error('两次输入的密码不一致'))
-      } else {
-        callback()
-      }
-    },
-    trigger: ['blur', 'change']
-  }]
+// 模式，登录or注册
+const mode = ref(route.query.mode || 'login')
+nextTick(() => {
+  boxin.value.style.left = mode.value === 'registe' ? '-100%' : '0'
 })
+// 切换模式 登录/注册
+function changeMode() {
+  if (mode.value === 'login') {
+    mode.value = 'registe'
+    formRefR.value.resetFields()
+    boxin.value.style.left = '-100%'
+  } else {
+    mode.value = 'login'
+    formRefL.value.resetFields()
+    boxin.value.style.left = '0'
+  }
+}
 
-const form = reactive({
+// 表单数据
+const formRefL = ref(null)
+const formRefR = ref(null)
+const boxin = ref(null)
+const formL = reactive({
+  username: '',
+  password: ''
+})
+const formR = reactive({
   username: '',
   password: '',
-  repassword: ''
+  rePassword: ''
 })
 
-// 切换登录和注册的显示
-const formRef = ref(null)
-const changeMode = () => {
-  mode.value = mode.value === 'login' ? 'registe' : 'login'
-  formRef.value.resetFields()
-}
+// 校验规则
+const rules = reactive({
+  username: [
+    { required: true, message: '请输入用户名', trigger: 'blur' },
+    {
+      pattern: /^[a-zA-Z0-9]{6,9}$/,
+      message: '必须为6-10位数字或字母',
+      trigger: ['blur']
+    }
+  ],
+  password: [
+    { required: true, message: '请输入密码', trigger: 'blur' },
+    {
+      pattern: /^[a-zA-Z0-9]{6,9}$/,
+      message: '必须为6-10位数字或字母',
+      trigger: 'blur'
+    }
+  ],
+  rePassword: [
+    {
+      validator: (rule, value, callback) => {
+        if (mode.value === 'registe' && value !== formR.password) {
+          callback(new Error('两次输入的密码不一致'))
+        } else {
+          callback()
+        }
+      },
+      trigger: 'blur'
+    }
+  ]
+})
 
 // 注册
 const registe = async () => {
-  await formRef.value.validate()
-  await userRegisteApi(form)
+  await formRefR.value.validate()
+  await userRegisteApi(formR)
   ElMessage.success('注册成功')
-  mode.value = 'login'
+  const username = formR.username
+  changeMode()
+  formL.username = username
 }
 
 // 登录
 const login = async () => {
   try {
-    await formRef.value.validate()
-    const res = await userLoginApi(form)
+    await formRefL.value.validate()
+    const res = await userLoginApi(formL)
     userStore.setToken('Bearer ' + res.data.token)
 
     ElMessage.success('登录成功')
-    setTimeout(async () => {
-      await router.replace('/article/channel')
-    }, 1000);
+    setTimeout(() => {
+      router.replace('/article/channel')
+    }, 100)
   } catch (err) {
     console.log(err)
   }
@@ -105,161 +108,151 @@ const resetPwd = async () => {
     showCancelButton: true,
     message: '确定要重置密码吗？'
   })
-  if (!form.username) return ElMessage.warning('请输入用户名')
-  await userResetPasswordApi(form)
+  if (!formL.username) return ElMessage.warning('请输入用户名')
+  await userResetPasswordApi(formL)
   ElMessage.success('密码重置成功，初始密码为六个1')
 }
-
 </script>
 
 <template>
-  <el-row>
-    <el-col :span="12">
-      <div
-        class="bg"
-        @click="testFn"
-      ></div>
-    </el-col>
-    <el-col
-      :span="8"
-      :push="2"
-    >
-      <el-form
-        class="form"
-        :model="form"
-        ref="formRef"
-        :rules="rules"
-        v-if="mode==='login'"
-      >
-        <h2>登录</h2>
-        <el-form-item
-          class="ipt"
-          prop="username"
-        >
-          <el-input
-            v-model="form.username"
-            :prefix-icon="User"
-            placeholder="请输入用户名"
-          />
-        </el-form-item>
-        <el-form-item
-          class="ipt"
-          prop="password"
-        >
-          <el-input
-            v-model="form.password"
-            :prefix-icon="Lock"
-            placeholder="请输入密码"
-            type="password"
-          />
-        </el-form-item>
-        <el-form-item>
-          <div class="remenber">
-            <el-checkbox label="记住我" />
-            <p @click="resetPwd">忘记密码</p>
+  <div>
+    <div class="bg" @click="testFn">
+      <div class="boxout">
+        <div class="boxin" ref="boxin">
+          <div class="login">
+            <h3 class="title">登录</h3>
+            <br />
+            <el-form ref="formRefL" :model="formL" :rules="rules" label-width="auto">
+              <el-form-item prop="username" label="用户名">
+                <el-input v-model="formL.username" placeholder="请输入用户名" />
+              </el-form-item>
+              <el-form-item prop="password" label="密码">
+                <el-input v-model="formL.password" type="password" placeholder="请输入密码" />
+              </el-form-item>
+              <el-form-item>
+                <div class="remenber">
+                  <el-checkbox label="记住我" />
+                  <p class="resetPwd" @click="resetPwd">忘记密码</p>
+                </div>
+              </el-form-item>
+              <el-button @click.prevent="login" class="btn" type="primary" :plain="false"
+                >登录</el-button
+              >
+              <p @click="changeMode" class="changeMode">注册→</p>
+            </el-form>
           </div>
-        </el-form-item>
-        <el-form-item>
-          <el-button
-            @click="login"
-            class="btn"
-            type="primary"
-          >登录</el-button>
-        </el-form-item>
-        <p @click="changeMode">注册→</p>
-      </el-form>
-
-      <el-form
-        class="form"
-        :model="form"
-        ref="formRef"
-        :rules="rules"
-        v-else
-      >
-        <h2>注册</h2>
-        <el-form-item
-          class="ipt"
-          prop="username"
-        >
-          <el-input
-            v-model="form.username"
-            :prefix-icon="User"
-            placeholder="请输入用户名"
-          />
-        </el-form-item>
-        <el-form-item
-          class="ipt"
-          prop="password"
-        >
-          <el-input
-            v-model="form.password"
-            :prefix-icon="Lock"
-            placeholder="请输入密码"
-            type="password"
-          />
-        </el-form-item>
-        <el-form-item prop="repassword">
-          <el-input
-            v-model="form.repassword"
-            :prefix-icon="Lock"
-            placeholder="请再次输入密码"
-            type="password"
-          />
-        </el-form-item>
-        <el-form-item>
-          <el-button
-            class="btn"
-            type="primary"
-            @click="registe"
-          >注册</el-button>
-        </el-form-item>
-        <p @click="changeMode">←返回</p>
-      </el-form>
-    </el-col>
-  </el-row>
+          <div class="registe">
+            <h3 class="title">注册</h3>
+            <br />
+            <el-form ref="formRefR" :model="formR" :rules="rules" label-width="auto">
+              <el-form-item prop="username" label="用户名">
+                <el-input v-model="formR.username" placeholder="请输入用户名" />
+              </el-form-item>
+              <el-form-item prop="password" label="密码">
+                <el-input v-model="formR.password" type="password" placeholder="请输入密码" />
+              </el-form-item>
+              <el-form-item prop="password" label="确认密码">
+                <el-input v-model="formR.rePassword" type="password" placeholder="请再次输入密码" />
+              </el-form-item>
+              <el-button @click.prevent="registe" class="btn" type="primary" :plain="false"
+                >注册</el-button
+              >
+              <p @click="changeMode" class="changeMode">←登录</p>
+            </el-form>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
 </template>
 
 <style scoped lang="scss">
-  .bg {
-    background: url(@/assets/logo.png) no-repeat center,
-      linear-gradient(#22002233),
-      url(@/assets/login_bg1.jpg) no-repeat center;
-    background-size: 60%, 100%, auto 100%;
-    height: 98vh;
-    border-radius: 0 30px 30px 0;
-    height: 100vh;
-  }
+.bg {
+  background:
+    url(@/assets/logo.png) no-repeat center,
+    linear-gradient(#22002255),
+    url(@/assets/login_bg1.jpg) no-repeat center;
+  background-size:
+    100%,
+    100%,
+    auto 100%;
+  height: 100vh;
+  width: 50vw;
+  border-radius: 0 30px 30px 0;
+  transition: all 0.1s linear;
+  user-select: none;
 
-  .form {
-    margin: 20vh 0;
-    padding: 4vw;
+  .login,
+  .registe {
+    padding: 4vmax;
+    position: relative;
+    width: 30vw;
+    display: inline-block;
+    vertical-align: top;
+  }
+  .boxout {
+    width: 30vw;
+    overflow: hidden;
+    white-space: nowrap;
     border: 1px #46f solid;
     box-shadow: 2px 2px 3px #46f;
     border-radius: 10px;
+    position: relative;
+    left: 75vw;
+    top: 50vh;
+    transform: translate(-50%, -50%);
+    transition: all 0.1s linear;
+  }
+  .boxin {
+    transition: all 0.2s linear;
+    position: relative;
+  }
+  .title {
+    margin: 10px;
+  }
+  .btn {
+    width: 100%;
+    height: 5vh;
+    margin: 20px auto;
+  }
+  .remenber {
+    display: flex;
+    justify-content: space-between;
+    width: 100%;
+    padding: 2px 10px;
 
-    h2 {
-      margin: 20px 0;
-    }
-
-    .ipt {
-      margin: 15px 2px;
-    }
-
-    .remenber {
-      padding: 0 10px;
-      width: 800px;
-      display: flex;
-      justify-content: space-between;
-    }
-
-    .btn {
-      width: 100%;
-      margin: 20px 0;
-    }
-
-    p {
-      font-size: 15px;
+    .resetPwd {
       cursor: pointer;
     }
   }
+  .changeMode {
+    cursor: pointer;
+  }
+}
+
+@media (max-width: 768px) {
+  .bg {
+    width: 100vw;
+    background-position:
+      50% 10%,
+      center,
+      center;
+    background-size:
+      50%,
+      100%,
+      auto 100%;
+    border-radius: 0;
+
+    .boxout {
+      left: 50vw;
+      width: 80vw;
+      background: #eeeeffaa;
+
+      .login,
+      .registe {
+        width: 80vw;
+      }
+    }
+  }
+}
 </style>

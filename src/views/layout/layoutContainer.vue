@@ -7,118 +7,62 @@ import {
   Crop,
   EditPen,
   CaretBottom,
-  SwitchButton
+  SwitchButton,
+  Menu
 } from '@element-plus/icons-vue'
-import {
-  useUserStore
-} from '@/stores';
-import {
-  ref
-} from 'vue';
-import {
-  onMounted, reactive
-} from 'vue';
+import { useUserStore } from '@/stores'
+import { ref, reactive, onMounted } from 'vue'
 import defaultAvatar from '@/assets/default.png'
-import router from '@/router';
-import {
-  ElMessage
-} from 'element-plus';
+import router from '@/router'
+import { ElMessage } from 'element-plus'
+import MenuBar from './MenuBar.vue'
 
 const userStore = useUserStore()
 const avatarSrc = ref(userStore.user.user_pic || defaultAvatar)
-
 const visible = ref(false)
+const showMenuDrawer = ref(true)
+
+// 路由
+const routes = reactive([])
+
 // 弹出框命令
-const handleCommand = path => {
+const handleCommand = (path) => {
   if (path) router.push('/user/' + path)
-  else ElMessageBox({
-    message: '确定要退出登录吗?',
-    showCancelButton: true,
-    confirmButtonText: '确定',
-    cancelButtonText: '取消',
-  }).then(() => {
-    userStore.logout()
-    router.push('/login')
-  })
+  else
+    ElMessageBox({
+      message: '确定要退出登录吗?',
+      showCancelButton: true,
+      confirmButtonText: '确定',
+      cancelButtonText: '取消'
+    }).then(() => {
+      userStore.logout()
+      router.push('/login')
+    })
 }
 
 onMounted(() => {
   userStore.getUser()
 })
-
 </script>
 
 <template>
-  <el-row>
-    <el-col :span="4">
-      <div class="menu">
-        <el-menu
-          background-color="#222"
-          text-color="#eee"
-          default-active="/article/channel"
-          router
-        >
-          <img
-            class="logo"
-            src="@/assets/logo.png"
-          />
-          <el-menu-item index="/article/channel">
-            <el-icon>
-              <Memo />
-            </el-icon>
-            <span>文章分类</span>
-          </el-menu-item>
-          <el-menu-item index="/article/manage">
-            <el-icon>
-              <Promotion />
-            </el-icon>
-            <span>文章管理</span>
-          </el-menu-item>
-          <el-sub-menu index="3">
-            <template #title>
-              <el-icon>
-                <UserFilled />
-              </el-icon>
-              <span>个人中心</span>
-            </template>
-            <el-menu-item index="/user/profile">
-              <el-icon>
-                <User />
-              </el-icon>
-              <span>基本资料</span>
-            </el-menu-item>
-            <el-menu-item index="/user/avatar">
-              <el-icon>
-                <Crop />
-              </el-icon>
-              <span>更换头像</span>
-            </el-menu-item>
-            <el-menu-item index="/user/password">
-              <el-icon>
-                <EditPen />
-              </el-icon>
-              <span>重置密码</span>
-            </el-menu-item>
-          </el-sub-menu>
-        </el-menu>
-      </div>
+  <el-row class="layout">
+    <el-col :sm="4" :xs="0">
+      <MenuBar />
     </el-col>
-    <el-col :span="20">
+    <el-drawer v-model="showMenuDrawer" :with-header="false" direction="ltr" size="60%">
+      <MenuBar @change="showMenuDrawer = false" />
+    </el-drawer>
+
+    <el-col :sm="20" :xs="24">
       <div class="header">
-        <span>{{ userStore.user.username || '用户名称错误' }}</span><span
-          v-if="userStore.user.nickname"
-          class="myname"
-        >: {{ userStore.user.nickname }}</span>
-        <div
-          class="avatar"
-          @mouseover="visible=true"
-        >
+        <el-icon :size="16" class="menu-icon" @click="showMenuDrawer = true"><Menu /></el-icon>
+        <span>{{ userStore.user.username || '用户名称错误' }}</span
+        ><span v-if="userStore.user.nickname" class="myname">: {{ userStore.user.nickname }}</span>
+        <div class="avatar" @mouseover="visible = true">
           <el-dropdown @command="handleCommand">
             <div class="avatar">
-              <el-avatar
-                :size="40"
-                :src="userStore.user.avatar || avatarSrc"
-              />
+              <el-avatar :size="40" :src="userStore.user.avatar || avatarSrc" />
               <el-icon size="20">
                 <CaretBottom />
               </el-icon>
@@ -162,41 +106,50 @@ onMounted(() => {
 </template>
 
 <style scoped lang="scss">
-  .menu {
-    height: 96vh;
-    background-color: #222;
-    text-align: center;
+.layout {
+  height: 100vh;
+  overflow: hidden;
+}
 
-    .logo {
-      margin: 20px 0;
-      width: 100%;
-    }
+::v-deep .el-drawer__body {
+  padding: 0;
+}
+
+.header {
+  width: 100%;
+  height: 60px;
+  line-height: 60px;
+  padding: 0 20px;
+  background-size: 40px;
+
+  .menu-icon {
+    display: none;
+    margin-right: 10px;
   }
 
-  .header {
-    width: 100%;
-    height: 60px;
-    line-height: 60px;
-    padding: 0 20px;
-    background-size: 40px;
-
-    .myname {
-      font-weight: bold;
-    }
-
-    .avatar {
-      display: flex;
-      align-items: center;
-      vertical-align: middle;
-      position: absolute;
-      right: 10px;
-      top: 5px;
-    }
+  .myname {
+    font-weight: bold;
   }
 
-  .view {
-    width: 100%;
-    height: calc(96vh - 60px);
-    background-color: #eee;
+  .avatar {
+    display: flex;
+    align-items: center;
+    vertical-align: middle;
+    position: absolute;
+    right: 10px;
+    top: 5px;
   }
+}
+
+.view {
+  width: 100%;
+  height: calc(100% - 60px);
+  background-color: #eee;
+}
+
+@media (max-width: 768px) {
+  .header .menu-icon {
+    display: inline-block;
+  }
+}
 </style>

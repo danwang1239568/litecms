@@ -3,6 +3,7 @@ import pinia from './stores'
 import App from './App.vue'
 import router from './router'
 import 'element-plus/theme-chalk/el-message.css'
+import '@/assets/main.scss'
 
 const app = createApp(App)
 

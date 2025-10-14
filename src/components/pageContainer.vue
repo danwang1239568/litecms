@@ -1,5 +1,5 @@
 <script setup>
-import { defineProps } from 'vue';
+import { defineProps } from 'vue'
 const prop = defineProps({
   title: {
     require: true,
@@ -9,7 +9,7 @@ const prop = defineProps({
 </script>
 
 <template>
-  <el-scrollbar class="box">
+  <el-scrollbar class="box" height="calc(78% + 70px)">
     <el-card class="card">
       <template #header>
         <div class="header">
@@ -28,8 +28,6 @@ const prop = defineProps({
 .box {
   font-size: 16px;
   padding: 20px;
-  height: calc(98vh - 140px);
-  overflow: scroll;
 
   .card {
     min-height: calc(98vh - 200px);

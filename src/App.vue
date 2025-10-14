@@ -1,11 +1,6 @@
 <script setup>
-import {
-  RouterLink,
-  RouterView,
-  useRoute,
-  useRouter
-} from 'vue-router';
-import zhCn from 'element-plus/dist/locale/zh-cn.mjs';
+import { RouterLink, RouterView, useRoute, useRouter } from 'vue-router'
+import zhCn from 'element-plus/dist/locale/zh-cn.mjs'
 
 const route = useRoute()
 const router = useRouter()
@@ -27,14 +22,7 @@ window.testFn = async () => {
     <el-config-provider :locale="zhCn">
       <router-view></router-view>
     </el-config-provider>
-
   </div>
 </template>
 
-<style>
-  * {
-    padding: 0;
-    margin: 0;
-  }
-
-</style>
+<style></style>
