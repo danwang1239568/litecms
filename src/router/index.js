@@ -38,7 +38,7 @@ export const constantRoutes = [
             component: () => import('@/views/user/userPassword.vue'),
             meta: {
               menubar: true,
-              title: '更换头像',
+              title: '重置密码',
               icon: markRaw(Crop)
             }
           },
@@ -47,7 +47,7 @@ export const constantRoutes = [
             component: () => import('@/views/user/userAvatar.vue'),
             meta: {
               menubar: true,
-              title: '重置密码',
+              title: '更换头像',
               icon: markRaw(EditPen)
             }
           }
@@ -120,13 +120,10 @@ router.beforeEach((to, from, next) => {
 
   const routerStore = useRouterStore()
   if (userStore.token && !routerStore.hasAdded) {
-    console.log(userStore.token, !routerStore.hasAdded)
     routerStore.generateRoutes()
     routerStore.hasAdded = true
     return next({ ...to, replace: true })
   }
-  console.log(routerStore.hasAdded)
-
   next()
 })
 

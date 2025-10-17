@@ -3,8 +3,8 @@ import { useUserStore } from '@/stores'
 import { ElMessage } from 'element-plus'
 import router from '@/router'
 
-// const baseURL = 'http://117.72.220.151/litecmsapi/'
-const baseURL = 'http://127.0.0.1:8080//'
+const baseURL = 'http://117.72.220.151/litecmsapi/'
+// const baseURL = 'http://127.0.0.1:8080//'
 
 // 初始化
 const request = axios.create({
