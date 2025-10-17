@@ -1,25 +1,17 @@
 <script setup>
-import {
-  ref,
-  defineExpose, defineEmits, nextTick
-} from 'vue';
+import { ref, defineExpose, defineEmits, nextTick } from 'vue'
 import channelSelect from './channelSelect.vue'
-import {
-  Plus
-} from '@element-plus/icons-vue'
-import {
-  QuillEditor
-} from '@vueup/vue-quill'
-import '@vueup/vue-quill/dist/vue-quill.snow.css'
-import {
-  artGetDetailApi,
-  addArticleApi,
-  editArticleApi
-} from '@/api/article';
-import {
-  ElMessage
-} from 'element-plus';
+import { Plus } from '@element-plus/icons-vue'
+import { artGetDetailApi, addArticleApi, editArticleApi } from '@/api/article'
+import { ElMessage } from 'element-plus'
 import { formatTime } from '@/utils/format'
+import { useUserStore } from '@/stores'
+import 'bytemd/dist/index.css'
+
+import gfm from '@bytemd/plugin-gfm'
+import { Editor, Viewer } from '@bytemd/vue-next'
+
+const userStore = useUserStore()
 
 const formModel = ref({
   cate_id: '',
@@ -32,12 +24,17 @@ const formModel = ref({
 
 const emit = defineEmits(['success'])
 const drawerVisible = ref(false)
-const editRef = ref()
+const editRef = ref(null)
 const drawerTitle = ref('')
-const open = async row => {
-  drawerVisible.value = true
+const open = async (row) => {
   drawerTitle.value = row ? '编辑文章' : '发布文章'
   if (row) {
+    // 编辑
+    if (userStore.user.id !== row.auth_id && userStore.user.role !== 'admin') {
+      return ElMessage.warning('你没有权限')
+    }
+
+    drawerVisible.value = true
     formModel.value.title = row?.title || ''
     formModel.value.cate_name = row?.cate_name || ''
     formModel.value.id = row?.id || '1'
@@ -50,15 +47,18 @@ const open = async row => {
       editRef.value.setHTML(formModel.value.content)
     })
   } else {
+    // 发布
+    drawerVisible.value = true
     formModel.value = {
       cate_id: '',
       cate_name: '',
       content: '',
       cover_img: '',
       state: '',
-      title: '',
+      title: ''
     }
     nextTick(() => {
+      console.log(editRef.value)
       editRef.value.setHTML('')
     })
   }
@@ -68,7 +68,7 @@ defineExpose({
 })
 
 let uploadRaw = null
-const imgChange = uploadFile => {
+const imgChange = (uploadFile) => {
   uploadRaw = uploadFile.raw
   formModel.value.cover_img = URL.createObjectURL(uploadFile.raw)
 }
@@ -77,7 +77,8 @@ const imgRemove = () => {
   formModel.value.cover_img = ''
 }
 
-const onPublish = async state => {
+// 确定
+const onPublish = async (state) => {
   formModel.value.state = state
   // 表单数据转换成formdata对象
   const fd = new FormData()
@@ -96,28 +97,25 @@ const onPublish = async state => {
     console.log(res.data)
     ElMessage.success('编辑成功')
   } else {
-    // 添加
+    // 发布
     const res = await addArticleApi(fd)
-    console.log(res.data);
-    ElMessage.success('发布成功 (暂不支持喵)')
+    console.log(res.data)
+    ElMessage.success('发布成功')
   }
   drawerVisible.value = false
   emit('success')
+}
+
+function contentChange(v) {
+  formModel.value.content = v
 }
 </script>
 
 <template>
   <!--  :modelValue="drawerVisible" @close="drawerVisible=false" -->
-  <el-drawer
-    v-model="drawerVisible"
-    :title="drawerTitle"
-    size="40%"
-  >
-    <el-form :model="formModel">
-      <el-form-item
-        label="文章标题"
-        prop="title"
-      >
+  <el-drawer v-model="drawerVisible" :title="drawerTitle" size="60%">
+    <el-form :model="formModel" class="form">
+      <el-form-item label="文章标题" prop="title">
         <el-input v-model="formModel.title"></el-input>
       </el-form-item>
 
@@ -130,19 +128,11 @@ const onPublish = async state => {
           :on-remove="imgRemove"
           :show-file-list="false"
           :on-change="imgChange"
-          :auto-upload='false'
+          :auto-upload="false"
           class="avatar-uploader"
         >
-          <img
-            v-if="formModel.cover_img"
-            :src="formModel.cover_img"
-            class="avatar-uploader-img"
-          />
-          <el-icon
-            v-else
-            class="avatar-uploader-icon"
-            size="30"
-          >
+          <img v-if="formModel.cover_img" :src="formModel.cover_img" class="avatar-uploader-img" />
+          <el-icon v-else class="avatar-uploader-icon" size="30">
             <Plus />
           </el-icon>
         </el-upload>
@@ -150,27 +140,14 @@ const onPublish = async state => {
 
       <el-form-item label="文章内容">
         <div class="editor">
-          <quill-editor
-            v-model:content="formModel.content"
-            ref="editRef"
-            content-type="html"
-            theme="snow"
-            class="editor"
-          ></quill-editor>
+          <Editor :value="formModel.content" @change="contentChange" :plugins="[gfm()]"></Editor>
         </div>
       </el-form-item>
 
-      <el-form-item label-width="80px">
-        <el-button
-          @click="onPublish('已发布')"
-          type="primary"
-        >发布</el-button>
-        <el-button
-          @click="onPublish('草稿')"
-          type="info"
-        >草稿</el-button>
+      <el-form-item label-width="60px">
+        <el-button @click="onPublish('已发布')" type="primary">发布</el-button>
+        <el-button @click="onPublish('草稿')" type="info">草稿</el-button>
       </el-form-item>
-
     </el-form>
   </el-drawer>
 </template>
@@ -179,6 +156,7 @@ const onPublish = async state => {
 .avatar-uploader {
   border: 1px solid #ababab;
   width: 100px;
+  height: 100px;
 
   .avatar-uploader-icon {
     width: 100px;
@@ -190,7 +168,17 @@ const onPublish = async state => {
   }
 }
 
-.editor {
-  width: 100%;
+.form {
+  padding: 5%;
+
+  .editor {
+    width: 100%;
+  }
+}
+
+@media (max-width: 768px) {
+  .form {
+    padding: 2%;
+  }
 }
 </style>

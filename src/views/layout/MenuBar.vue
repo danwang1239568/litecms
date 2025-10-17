@@ -1,52 +1,17 @@
 <script setup>
-import {
-  Memo,
-  Promotion,
-  UserFilled,
-  User,
-  Crop,
-  EditPen,
-  CaretBottom,
-  SwitchButton
-} from '@element-plus/icons-vue'
 import { defineEmits } from 'vue'
+// import { routes } from '@/router'
+import { useRoute } from 'vue-router'
+import { useRouterStore } from '../../stores'
 
-const routes = [
-  {
-    path: '/article/channel',
-    icon: Memo,
-    title: '文章分类'
-  },
-  {
-    path: '/article/manage',
-    icon: Promotion,
-    title: '文章管理'
-  },
-  {
-    path: '3',
-    icon: UserFilled,
-    title: '个人中心',
-    sub: [
-      {
-        path: '/user/profile',
-        icon: User,
-        title: '基本资料'
-      },
-      {
-        path: '/user/avatar',
-        icon: Crop,
-        title: '更换头像'
-      },
-      {
-        path: '/user/password',
-        icon: EditPen,
-        title: '重置密码'
-      }
-    ]
-  }
-]
+const route = useRoute()
+const defaultActive = route.fullPath
 
-const emit = defineEmits('change')
+const routerStore = useRouterStore()
+
+const homeRoutes = routerStore.routes[0].children // routes[0].children[0].children
+
+const emit = defineEmits(['change'])
 </script>
 
 <template>
@@ -55,38 +20,38 @@ const emit = defineEmits('change')
       mode="vertical"
       background-color="#222"
       text-color="#eee"
-      default-active="/article/channel"
+      :default-active="defaultActive"
       router
     >
       <img class="logo" src="@/assets/logo.png" />
 
-      <div v-for="item in routes" :key="item.path">
-        <el-sub-menu v-if="item.sub" :index="item.path">
+      <div v-for="item in homeRoutes" :key="item.path">
+        <el-sub-menu v-if="item.children" :index="item.path">
           <template #title>
             <el-icon>
-              <component :is="item.icon" />
+              <component :is="item.meta.icon" />
             </el-icon>
-            <span>{{ item.title }}</span>
+            <span>{{ item.meta.title }}</span>
           </template>
 
           <el-menu-item
-            v-for="subItem in item.sub"
+            v-for="subItem in item.children"
             :key="subItem.path"
             :index="subItem.path"
             @click="emit('change')"
           >
             <el-icon>
-              <component :is="subItem.icon" />
+              <component :is="subItem.meta.icon" />
             </el-icon>
-            <span>{{ subItem.title }}</span>
+            <span>{{ subItem.meta.title }}</span>
           </el-menu-item>
         </el-sub-menu>
 
         <el-menu-item v-else :index="item.path" @click="emit('change')">
           <el-icon>
-            <component :is="item.icon" />
+            <component :is="item.meta.icon" />
           </el-icon>
-          <span>{{ item.title }}</span>
+          <span>{{ item.meta.title }}</span>
         </el-menu-item>
       </div>
     </el-menu>

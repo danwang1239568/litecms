@@ -47,7 +47,7 @@ const rules = reactive({
   username: [
     { required: true, message: '请输入用户名', trigger: 'blur' },
     {
-      pattern: /^[a-zA-Z0-9]{6,9}$/,
+      pattern: /^[a-zA-Z0-9]{6,10}$/,
       message: '必须为6-10位数字或字母',
       trigger: ['blur']
     }
@@ -55,7 +55,7 @@ const rules = reactive({
   password: [
     { required: true, message: '请输入密码', trigger: 'blur' },
     {
-      pattern: /^[a-zA-Z0-9]{6,9}$/,
+      pattern: /^[a-zA-Z0-9]{6,10}$/,
       message: '必须为6-10位数字或字母',
       trigger: 'blur'
     }
@@ -92,8 +92,9 @@ const login = async () => {
     userStore.setToken('Bearer ' + res.data.token)
 
     ElMessage.success('登录成功')
+
     setTimeout(() => {
-      router.replace('/article/channel')
+      router.replace('/')
     }, 100)
   } catch (err) {
     console.log(err)
@@ -102,15 +103,19 @@ const login = async () => {
 
 // 忘记密码
 const resetPwd = async () => {
-  await ElMessageBox({
+  if (!formL.username) return ElMessage.warning('请输入用户名')
+  const { value } = await ElMessageBox.prompt('请输入你的邮箱', 'Tip', {
     confirmButtonText: '确定',
     cancelButtonText: '取消',
-    showCancelButton: true,
-    message: '确定要重置密码吗？'
+    inputPattern:
+      /[\w!#$%&'*+/=?^_`{|}~-]+(?:\.[\w!#$%&'*+/=?^_`{|}~-]+)*@(?:[\w](?:[\w-]*[\w])?\.)+[\w](?:[\w-]*[\w])?/,
+    inputErrorMessage: 'Invalid Email'
   })
-  if (!formL.username) return ElMessage.warning('请输入用户名')
-  await userResetPasswordApi(formL)
-  ElMessage.success('密码重置成功，初始密码为六个1')
+  await userResetPasswordApi({ ...formL, email: value })
+  ElMessage({
+    type: 'success',
+    message: `密码重置成功, 初始密码为六个1`
+  })
 }
 </script>
 

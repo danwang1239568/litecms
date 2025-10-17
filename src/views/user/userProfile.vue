@@ -9,7 +9,6 @@ const userStore = useUserStore()
 
 const getUser = async () => {
   await userStore.getUser()
-  console.log(userStore.user)
 }
 const formData = ref({
   id: userStore.user.id,

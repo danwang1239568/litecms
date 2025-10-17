@@ -1,29 +1,18 @@
 <script setup>
-import {
-  Memo,
-  Promotion,
-  UserFilled,
-  User,
-  Crop,
-  EditPen,
-  CaretBottom,
-  SwitchButton,
-  Menu
-} from '@element-plus/icons-vue'
-import { useUserStore } from '@/stores'
-import { ref, reactive, onMounted } from 'vue'
+import { User, Crop, EditPen, CaretBottom, SwitchButton, Menu } from '@element-plus/icons-vue'
+import { useUserStore, useRouterStore } from '@/stores'
+import { ref, onMounted } from 'vue'
 import defaultAvatar from '@/assets/default.png'
 import router from '@/router'
 import { ElMessage } from 'element-plus'
-import MenuBar from './MenuBar.vue'
+import menuBar from './menuBar.vue'
+import { resetRouter } from '@/router'
 
+const routerStore = useRouterStore()
 const userStore = useUserStore()
 const avatarSrc = ref(userStore.user.user_pic || defaultAvatar)
 const visible = ref(false)
-const showMenuDrawer = ref(true)
-
-// 路由
-const routes = reactive([])
+const showMenuDrawer = ref(false)
 
 // 弹出框命令
 const handleCommand = (path) => {
@@ -37,21 +26,26 @@ const handleCommand = (path) => {
     }).then(() => {
       userStore.logout()
       router.push('/login')
+      routerStore.resetRouter()
     })
 }
 
-onMounted(() => {
-  userStore.getUser()
+onMounted(async () => {
+  const userStore = useUserStore()
+  if (!userStore.user?.role) {
+    await userStore.getUser()
+    routerStore.generateRoutes()
+  }
 })
 </script>
 
 <template>
   <el-row class="layout">
     <el-col :sm="4" :xs="0">
-      <MenuBar />
+      <menuBar />
     </el-col>
     <el-drawer v-model="showMenuDrawer" :with-header="false" direction="ltr" size="60%">
-      <MenuBar @change="showMenuDrawer = false" />
+      <menuBar @change="showMenuDrawer = false" />
     </el-drawer>
 
     <el-col :sm="20" :xs="24">

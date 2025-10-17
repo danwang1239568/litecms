@@ -4,6 +4,7 @@ import { Plus, Upload } from '@element-plus/icons-vue'
 import { ref } from 'vue'
 import { useUserStore } from '@/stores'
 import { userUpdateAvatarApi } from '@/api/user'
+import { ElMessage } from 'element-plus'
 
 const userStore = useUserStore()
 
@@ -34,7 +35,7 @@ const onUpdateAvatar = async () => {
         :on-change="handleAvatarChange"
       >
         <img v-if="imgUrl" :src="imgUrl" class="avatar" />
-        <el-icon v-else class="avatar-uploader-icon">
+        <el-icon v-else :size="100">
           <Plus />
         </el-icon>
       </el-upload>
@@ -65,11 +66,9 @@ const onUpdateAvatar = async () => {
   border: 1px solid #dcdfe6;
   margin-bottom: 20px;
   overflow: hidden;
-
-  .avatar-uploader-icon {
-    width: 100%;
-    height: 100%;
-  }
+  display: flex;
+  justify-content: center;
+  align-items: center;
 
   .avatar {
     height: 260px;

@@ -15,21 +15,30 @@ const getChannelList = async () => {
 }
 getChannelList()
 
+// 删除文章
 const deleteItem = async (row) => {
-  await ElMessageBox.confirm('确定要删除吗?', '温馨提示', {
-    type: 'warning',
-    confirmButtonText: '确定',
-    cancelButtonText: '取消'
-  })
-  channelList.value = channelList.value.filter((item) => item.id === row.id)
-  ElMessage.success('删除成功')
-  await artDeleteChanneApi(row.id)
-  getChannelList()
+  try {
+    await ElMessageBox.confirm('确定要删除吗?', '温馨提示', {
+      type: 'warning',
+      confirmButtonText: '确定',
+      cancelButtonText: '取消'
+    })
+    channelList.value = channelList.value.filter((item) => item.id === row.id)
+    ElMessage.success('删除成功')
+    await artDeleteChanneApi(row.id)
+    getChannelList()
+  } catch (err) {
+    console.log(err)
+  }
 }
 const dialog = ref()
+
+// 编辑分类
 const onEditChannel = (row) => {
   dialog.value.open(row)
 }
+
+// 添加分类
 const onAddChannel = () => {
   dialog.value.open()
 }
@@ -48,9 +57,9 @@ const onSuccess = () => {
     <el-table
       v-loading="isLoading"
       :data="channelList"
-      stripe
       :header-cell-style="{ background: '#eee', textAlign: 'center' }"
       :cell-style="{ textAlign: 'center' }"
+      stripe
     >
       <el-table-column type="index" label="序号" width="80" />
       <el-table-column prop="name" label="分类名称" />

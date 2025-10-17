@@ -6,6 +6,10 @@ import { artGetArticleApi } from '@/api/article'
 import { formatTime } from '@/utils/format.js'
 import articleEdit from './components/articleEdit.vue'
 import { delArticleApi } from '@/api/article'
+import { useUserStore } from '../../stores'
+import { ElMessage, ElMessageBox } from 'element-plus'
+
+const userStore = useUserStore()
 
 const selState = ref()
 const selName = ref()
@@ -86,14 +90,21 @@ const onSuccess = () => {
   getArticleList()
 }
 const deleteItem = async (row) => {
-  await ElMessageBox.confirm('确定要删除吗?', '温馨提示', {
-    type: 'warning',
-    confirmButtonText: '确定',
-    cancelButtonText: '取消'
-  })
-  await delArticleApi(row.id)
-  ElMessage.success('删除成功')
-  getArticleList()
+  try {
+    if (userStore.user.id !== row.auth_id && userStore.user.role !== 'admin') {
+      return ElMessage.warning('你没有权限')
+    }
+    await ElMessageBox.confirm('确定要删除吗?', '温馨提示', {
+      type: 'warning',
+      confirmButtonText: '确定',
+      cancelButtonText: '取消'
+    })
+    await delArticleApi(row.id)
+    ElMessage.success('删除成功')
+    getArticleList()
+  } catch (err) {
+    console.log(err)
+  }
 }
 </script>
 
@@ -120,10 +131,10 @@ const deleteItem = async (row) => {
     </el-form>
 
     <el-table
+      v-Loading="isLoading"
       :data="articleList"
       :header-cell-style="{ background: '#eee' }"
       stripe
-      v-Loading="isLoading"
     >
       <el-table-column label="文章标题" prop="title">
         <template #default="{ row }">
@@ -137,7 +148,7 @@ const deleteItem = async (row) => {
         </template>
       </el-table-column>
       <el-table-column label="状态" prop="state"></el-table-column>
-      <el-table-column label="操作">
+      <el-table-column label="操作" width="100">
         <template #default="{ row }">
           <el-button @click="editItem(row)" circle type="primary" plain :icon="EditPen"></el-button>
           <el-button @click="deleteItem(row)" circle type="danger" plain :icon="Delete"></el-button>

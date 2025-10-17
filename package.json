@@ -12,12 +12,14 @@
     "prepare": "husky install"
   },
   "dependencies": {
+    "@bytemd/plugin-gfm": "^1.22.0",
+    "@bytemd/vue-next": "^1.22.0",
     "@element-plus/icons-vue": "^2.3.1",
-    "@vueup/vue-quill": "^1.2.0",
     "axios": "^1.7.8",
     "element-plus": "^2.8.8",
     "pinia": "^2.2.6",
     "vue": "^3.5.12",
+    "vue-meditor": "^2.1.2",
     "vue-router": "^4.4.5"
   },
   "devDependencies": {
