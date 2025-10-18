@@ -155,7 +155,6 @@ const deleteItem = async (row) => {
         </template>
       </el-table-column>
     </el-table>
-
     <el-pagination
       v-model:current-page="params.pagenum"
       v-model:page-size="params.pagesize"
@@ -165,7 +164,7 @@ const deleteItem = async (row) => {
       :total="total"
       @size-change="handleSizeChange"
       @current-change="handleCurrentChange"
-      style="margin-top: 20px; justify-content: end"
+      style="margin: 20px 0; justify-content: end; flex-wrap: wrap"
     />
 
     <articleEdit @success="onSuccess" ref="drawerRef"></articleEdit>

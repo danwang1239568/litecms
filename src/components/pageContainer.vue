@@ -28,6 +28,7 @@ const prop = defineProps({
 .box {
   font-size: 16px;
   padding: 20px;
+  height: 100vh;
 
   .card {
     min-height: calc(98vh - 200px);
